@@ -81,7 +81,7 @@ BarcodeScanner.prototype.scan = function (successCallback, errorCallback) {
         return;
     }
 
-    cordova.exec(successCallback, errorCallback, 'BarcodeScanner', 'scan', ["abc","123","456","efg"]);
+    cordova.exec(successCallback, errorCallback, 'BarcodeScanner', 'scan', ["abc","123","456","efg"]); //TODO - path here
 };
 
 //-------------------------------------------------------------------
