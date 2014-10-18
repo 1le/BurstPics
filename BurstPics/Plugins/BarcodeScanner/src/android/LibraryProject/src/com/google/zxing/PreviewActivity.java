@@ -16,6 +16,7 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -27,6 +28,14 @@ import android.widget.Toast;
 
 import com.google.zxing.client.android.R;
 
+/**
+ * Telerik Hackathon 2014, team "2 wise men".
+ * 
+ * Saves a number of images from the camers preview view to specified locations.
+ * 
+ * @author Ilian Nikolov
+ * @date 10/18/2014
+ */
 public class PreviewActivity extends Activity implements SurfaceHolder.Callback {
 
     private SurfaceView surfaceView;
@@ -36,16 +45,12 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
     private YuvImage yuvImage;
     private Camera camera;
     private Camera.Parameters cameraParams;
-//    private BitmapFactory.Options bitmapOptions;
 
     private int displayHeight, displayWidth;
 
     private boolean takePictureRequest;
-//    private boolean portrait, reversedLandscape, portraitReversed;
 
     private int picturesSaved = 0;
-
-    // TODO progress dialog
 
     private String[] imgPaths;
     private ProgressBar loading;
@@ -125,13 +130,11 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
     }
 
     public void previewCamera() {
-        // if (!previewing)
         try {
             updateCameraSettings();
             camera.setPreviewDisplay(surfaceHolder);
             camera.setPreviewCallback(onPreview);
             camera.startPreview();
-            // previewing = true;
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Error starting preview: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -148,12 +151,9 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
         cameraParams.setPreviewSize(biggestSupportedSize.width, biggestSupportedSize.height);
         if (display.getRotation() == Surface.ROTATION_0) {
             camera.setDisplayOrientation(90);
-//            portrait = true;
         } else if (display.getRotation() == Surface.ROTATION_180) {
-//            portraitReversed = true;
             camera.setDisplayOrientation(270);
         } else if (display.getRotation() == Surface.ROTATION_270) {
-//            reversedLandscape = true;
             camera.setDisplayOrientation(180);
         }
         camera.setParameters(cameraParams);
@@ -200,17 +200,19 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
                 Size size = cameraParams.getPreviewSize();
 
                 yuvImage = new YuvImage(data, cameraParams.getPreviewFormat(), size.width, size.height, null);
-                File file = new File(Environment.getExternalStorageDirectory().getPath() + "/out" + picturesSaved + ".jpg");
+                File file = new File(Environment.getExternalStorageDirectory().getPath() + "/out" + picturesSaved + ".jpg"); //TODO use given paths, eg imgPaths[picturesSaved] 
                 FileOutputStream filecon;
                 try {
                     filecon = new FileOutputStream(file);
                     yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 90, filecon);
                     picturesSaved++;
                     if (picturesSaved > imgPaths.length) {
+                        setResult(RESULT_OK);
                         stopTakingPictures();
                     }
                 } catch (FileNotFoundException e) {
                     Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    setResult(RESULT_CANCELED, new Intent().putExtra("SCAN_RESULT", "Error saving images"));
                     stopTakingPictures();
                     e.printStackTrace();
                 }
@@ -222,7 +224,16 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
         takePictureRequest = false;
         picturesSaved = 0;
         loading.setVisibility(ProgressBar.INVISIBLE);
-        setResult(RESULT_OK);
         finish();
+    }
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode){
+        case KeyEvent.KEYCODE_BACK:
+            setResult(RESULT_CANCELED, new Intent().putExtra("SCAN_RESULT", "Cancelled"));
+            return false; //let the app continue
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
