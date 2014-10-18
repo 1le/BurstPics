@@ -35,6 +35,22 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
         navigator.splashscreen.hide();
+        takePicsButton = document.getElementById("takePicsButton");
+
+        takePicsButton.addEventListener("click",
+                function () {
+                    var that = this;
+                    
+                   window.plugins.barcodeScanner.scan(
+                        function (result) {
+                            if (!result.cancelled) {
+                                that._addMessageToLog(result.format + " | " + result.text);
+                            }
+                        },
+                        function (error) {
+                            console.log("Toast failed: " + error);
+                        });
+            });
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
