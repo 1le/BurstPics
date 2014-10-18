@@ -44,10 +44,12 @@ var app = {
                    window.plugins.barcodeScanner.scan(
                         function (result) {
                             if (!result.cancelled) {
+                                alert("Completed.");
                                 that._addMessageToLog(result.format + " | " + result.text);
                             }
                         },
                         function (error) {
+                            alert("Error: " + error);
                             console.log("Toast failed: " + error);
                         });
             });

@@ -35,19 +35,14 @@ public class BarcodeScanner extends CordovaPlugin {
     private static final String TEXT = "text";
     private static final String DATA = "data";
     private static final String TYPE = "type";
-    private static final String SCAN_INTENT = "com.phonegap.plugins.barcodescanner.SCAN";
-    private static final String ENCODE_DATA = "ENCODE_DATA";
-    private static final String ENCODE_TYPE = "ENCODE_TYPE";
-    private static final String ENCODE_INTENT = "com.phonegap.plugins.barcodescanner.ENCODE";
+    private static final String TAKE_PICS = "com.phonegap.plugins.barcodescanner.SCAN";
     private static final String TEXT_TYPE = "TEXT_TYPE";
-    private static final String EMAIL_TYPE = "EMAIL_TYPE";
-    private static final String PHONE_TYPE = "PHONE_TYPE";
-    private static final String SMS_TYPE = "SMS_TYPE";
 
     private static final String LOG_TAG = "BarcodeScanner";
 
     private CallbackContext callbackContext;
 
+    private String[] imgSavePaths;
     /**
      * Constructor.
      */
@@ -74,6 +69,24 @@ public class BarcodeScanner extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
         this.callbackContext = callbackContext;
 
+        if (args.length() < 1) {
+            //missing save path
+            callbackContext.error("Did not specify target paths to save to");
+            return false;
+        }
+
+        imgSavePaths = new String[args.length()];
+        try {
+        for (int i = 0; i < args.length(); i++) {
+                imgSavePaths[i] = args.getString(i);
+            Log.e(" imgSavePaths ", " " + imgSavePaths[i]); //TODO remove
+        }
+        } catch (JSONException e) {
+            callbackContext.error("Bad args format for img save paths.");
+            e.printStackTrace();
+            return false;
+        }
+        
         if (action.equals(ENCODE)) {
             JSONObject obj = args.optJSONObject(0);
             if (obj != null) {
@@ -90,13 +103,12 @@ public class BarcodeScanner extends CordovaPlugin {
                     return true;
                 }
 
-                encode(type, data);
             } else {
                 callbackContext.error("User did not specify data to encode");
                 return true;
             }
         } else if (action.equals(SCAN)) {
-            scan();
+            takePictures();
         } else {
             return false;
         }
@@ -106,13 +118,13 @@ public class BarcodeScanner extends CordovaPlugin {
     /**
      * Starts an intent to scan and decode a barcode.
      */
-    public void scan() {
-        Intent intentScan = new Intent(SCAN_INTENT);
-        intentScan.addCategory(Intent.CATEGORY_DEFAULT);
-        // avoid calling other phonegap apps
-        intentScan.setPackage(this.cordova.getActivity().getApplicationContext().getPackageName());
+    public void takePictures() {
+        Intent intentTakePics = new Intent(TAKE_PICS);
+        intentTakePics.addCategory(Intent.CATEGORY_DEFAULT);
+        intentTakePics.putExtra("imagePaths", imgSavePaths); //TODO separate in constants
+        intentTakePics.setPackage(this.cordova.getActivity().getApplicationContext().getPackageName());
 
-        this.cordova.startActivityForResult((CordovaPlugin) this, intentScan, REQUEST_CODE);
+        this.cordova.startActivityForResult((CordovaPlugin) this, intentTakePics, REQUEST_CODE);
     }
 
     /**
@@ -153,21 +165,5 @@ public class BarcodeScanner extends CordovaPlugin {
                 this.callbackContext.error("Unexpected error");
             }
         }
-    }
-
-    /**
-     * Initiates a barcode encode.
-     *
-     * @param type Endoiding type.
-     * @param data The data to encode in the bar code.
-     */
-    public void encode(String type, String data) {
-        Intent intentEncode = new Intent(ENCODE_INTENT);
-        intentEncode.putExtra(ENCODE_TYPE, type);
-        intentEncode.putExtra(ENCODE_DATA, data);
-        // avoid calling other phonegap apps
-        intentEncode.setPackage(this.cordova.getActivity().getApplicationContext().getPackageName());
-
-        this.cordova.getActivity().startActivity(intentEncode);
     }
 }

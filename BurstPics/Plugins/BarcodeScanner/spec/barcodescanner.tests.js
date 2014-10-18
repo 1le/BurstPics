@@ -22,6 +22,7 @@
 var scanner;
 
 describe('cordova.require object should exist', function () {
+    /*
 	it("should exist", function() {
         expect(window.cordova).toBeDefined();
         expect(typeof cordova.require == 'function').toBe(true);
@@ -49,7 +50,7 @@ describe('cordova.require object should exist', function () {
         expect(scanner.Encode.PHONE_TYPE).toBe("PHONE_TYPE");
         expect(scanner.Encode.SMS_TYPE).toBe("SMS_TYPE");
     });
-    /*
+    
     it("should call scan successfully", function() {
         scanner.scan(function() {}, function() {});
     });
