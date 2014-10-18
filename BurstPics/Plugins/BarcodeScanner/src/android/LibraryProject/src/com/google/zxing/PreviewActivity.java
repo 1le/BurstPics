@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
@@ -14,7 +15,6 @@ import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -22,13 +22,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.zxing.client.android.R;
 
 public class PreviewActivity extends Activity implements SurfaceHolder.Callback {
-
-    private final int NUMBER_OF_PICS = 5;
 
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
@@ -48,15 +47,18 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
 
     // TODO progress dialog
 
+    private String[] imgPaths;
+    private ProgressBar loading;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("imagePaths")); { //TODO separate in constants
-           String[] imgPaths = getIntent().getExtras().getStringArray("imagePaths");
-           for (String imgPath : imgPaths) {
-               Log.e(" got img path" , " " + imgPath);
-           }
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("imagePaths")) { //TODO separate in constants
+           imgPaths = getIntent().getExtras().getStringArray("imagePaths");
+        } else {
+            setResult(RESULT_CANCELED, new Intent().putExtra("SCAN_RESULT", "Missing image paths"));
+            finish();
         }
 
         setContentView(R.layout.activity_preview);
@@ -68,6 +70,7 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
         displayWidth = size.x;
 
         surfaceView = (SurfaceView) findViewById(R.id.cameraPreview);
+        loading = (ProgressBar) findViewById(R.id.loading);
 
         captureButton = (Button) findViewById(R.id.captureButton);
 
@@ -76,7 +79,7 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
             @Override
             public void onClick(View v) {
                 takePictureRequest = true;
-
+                loading.setVisibility(ProgressBar.VISIBLE);
             }
         });
 
@@ -203,7 +206,7 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
                     filecon = new FileOutputStream(file);
                     yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 90, filecon);
                     picturesSaved++;
-                    if (picturesSaved > NUMBER_OF_PICS) {
+                    if (picturesSaved > imgPaths.length) {
                         stopTakingPictures();
                     }
                 } catch (FileNotFoundException e) {
@@ -218,5 +221,8 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
     private void stopTakingPictures() {
         takePictureRequest = false;
         picturesSaved = 0;
+        loading.setVisibility(ProgressBar.INVISIBLE);
+        setResult(RESULT_OK);
+        finish();
     }
 }

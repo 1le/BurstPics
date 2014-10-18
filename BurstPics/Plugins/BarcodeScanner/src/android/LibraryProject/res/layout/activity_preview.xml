@@ -1,19 +1,31 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
 
-        <SurfaceView
+    <SurfaceView
         android:id="@+id/cameraPreview"
         android:layout_width="wrap_content"
         android:layout_height="match_parent" />
 
-        <Button android:id="@+id/captureButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="CAPTURE"
-            android:layout_margin="10dp"
-            android:padding="10dp"
-            android:layout_alignParentBottom="true"
-            style="?android:attr/borderlessButtonStyle" />
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="10dp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/captureButton"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:background="#1bbc9b"
+        android:padding="10dp"
+        android:text="CAPTURE" />
+
 </RelativeLayout>
