@@ -79,7 +79,6 @@ public class BarcodeScanner extends CordovaPlugin {
         try {
         for (int i = 0; i < args.length(); i++) {
                 imgSavePaths[i] = args.getString(i);
-            Log.e(" imgSavePaths ", " " + imgSavePaths[i]); //TODO remove
         }
         } catch (JSONException e) {
             callbackContext.error("Bad args format for img save paths.");
@@ -142,7 +141,7 @@ public class BarcodeScanner extends CordovaPlugin {
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put(TEXT, intent.getStringExtra("SCAN_RESULT"));
-                    //obj.put(FORMAT, intent.getStringExtra("SCAN_RESULT_FORMAT"));
+                    obj.put(FORMAT, "");
                     obj.put(CANCELLED, false);
                 } catch (JSONException e) {
                     Log.d(LOG_TAG, "This should never happen");

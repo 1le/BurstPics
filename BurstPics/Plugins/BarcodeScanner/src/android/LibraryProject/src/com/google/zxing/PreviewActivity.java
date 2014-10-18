@@ -207,7 +207,7 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
                     yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 90, filecon);
                     picturesSaved++;
                     if (picturesSaved > imgPaths.length) {
-                        setResult(RESULT_OK);
+                        setResult(RESULT_OK, new Intent().putExtra("SCAN_RESULT", "Success."));
                         stopTakingPictures();
                     }
                 } catch (FileNotFoundException e) {
