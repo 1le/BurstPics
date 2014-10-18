@@ -14,6 +14,7 @@ import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -50,6 +51,13 @@ public class PreviewActivity extends Activity implements SurfaceHolder.Callback 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("imagePaths")); { //TODO separate in constants
+           String[] imgPaths = getIntent().getExtras().getStringArray("imagePaths");
+           for (String imgPath : imgPaths) {
+               Log.e(" got img path" , " " + imgPath);
+           }
+        }
 
         setContentView(R.layout.activity_preview);
 
